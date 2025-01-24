@@ -1,0 +1,29 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+*, ::before, ::after {
+    box-sizing: border-box;
+    border-width: 0;
+    border-style: solid;
+    border-color: unset;
+}
+
+
+
+input[type='date']::-webkit-calendar-picker-indicator {
+    display: none;
+}
+
+input[type='date']::-moz-calendar-picker-indicator {
+    display: none;
+}
+
+input[type='date']::-ms-clear {
+    display: none;
+}
+
+input[type='number']::-webkit-inner-spin-button,
+input[type='number']::-webkit-outer-spin-button {
+    display: none;
+}
