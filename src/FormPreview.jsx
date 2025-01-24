@@ -24,9 +24,9 @@ const FormPreview = ({ sections, togglePreview, formName }) => {
           schema[field.name] = Yup.mixed()
             .nullable()
             .required(`${field.label} is required.`);
-        } else if (field.type === "radio") {
+        } else if (field.type === "radiobutton") {
           schema[field.name] = Yup.string().required(`${field.label} is required.`);
-        } else if (field.type === "checkbox") {
+        } else if (field.type === "checkboxes") {
           schema[field.name] = Yup.array().min(1, `At least one ${field.label} option is required.`);
         } else if (field.type === "datepicker") {
           schema[field.name] = Yup.date().required(`${field.label} is required.`);
@@ -129,6 +129,61 @@ const FormPreview = ({ sections, togglePreview, formName }) => {
                   />
                 )}
 
+                {/* Radio Buttons */}
+                {field.type === "radiobutton" && field.options && (
+                  <div className="space-y-2 grid grid-cols-2">
+                    {field.options.map((option) => (
+                      <div key={option.value} className="flex items-center">
+                        <input
+                          type="radio"
+                          id={option.value}
+                          name={field.name}
+                          value={option.value}
+                          checked={formik.values[field.name] === option.value}
+                          onChange={formik.handleChange}
+                          onBlur={formik.handleBlur}
+                          className="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+                        />
+                        <label htmlFor={option.value} className="ml-2 text-sm text-gray-700">
+                          {option.value}
+                        </label>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* Checkboxes */}
+                {field.type === "checkboxes" && field.options && (
+                  <div className="space-y-2 grid grid-cols-2">
+                    {field.options.map((option) => (
+                      <div key={option.value} className="flex items-center">
+                        <input
+                          type="checkbox"
+                          id={option.value}
+                          name={field.name}
+                          value={option.value}
+                          checked={formik.values[field.name].includes(option.value)}
+                          onChange={(e) => {
+                            const newValue = [...formik.values[field.name]];
+                            if (e.target.checked) {
+                              newValue.push(option.value);
+                            } else {
+                              const index = newValue.indexOf(option.value);
+                              newValue.splice(index, 1);
+                            }
+                            formik.setFieldValue(field.name, newValue);
+                          }}
+                          onBlur={formik.handleBlur}
+                          className="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+                        />
+                        <label htmlFor={option.value} className="ml-2 text-sm text-gray-700">
+                          {option.value}
+                        </label>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
                 {/* DatePicker */}
                 {field.type === "datepicker" && (
                   <DatePicker
@@ -143,19 +198,36 @@ const FormPreview = ({ sections, togglePreview, formName }) => {
 
                 {/* File Upload */}
                 {field.type === "fileupload" && (
-                    <Upload
-                      id={field.name}
-                      name={field.name}
-                      fileList={formik.values[field.name] || []}
-                      beforeUpload={() => false} // Prevent automatic upload
-                      onChange={({ fileList }) => formik.setFieldValue(field.name, fileList)}
-                      onBlur={() => formik.setFieldTouched(field.name, true)}
-                      className={`w-full ${formik.touched[field.name] && formik.errors[field.name] ? "border-red-500" : "border-gray-300"} rounded-lg`}
-                    >
-                      <button type="button" className="ant-btn ant-btn-primary flex flex-col justify-center items-center w-20 h-20 rounded-lg border border-black/10 my-2">
-                        <UploadOutlined className="text-3xl" /> Upload
-                      </button>
-                    </Upload>
+                  <Upload
+                    id={field.name}
+                    name={field.name}
+                    fileList={formik.values[field.name] || []}
+                    beforeUpload={() => false} // Prevent automatic upload
+                    onChange={({ fileList }) => formik.setFieldValue(field.name, fileList)}
+                    onBlur={() => formik.setFieldTouched(field.name, true)}
+                    className={`w-full ${formik.touched[field.name] && formik.errors[field.name] ? "border-red-500" : "border-gray-300"} rounded-lg`}
+                  >
+                    <button type="button" className="ant-btn ant-btn-primary flex flex-col justify-center items-center w-20 h-20 rounded-lg border border-black/10 my-2">
+                      <UploadOutlined className="text-3xl" /> Upload
+                    </button>
+                  </Upload>
+                )}
+
+                {/* Text Input (Other types) */}
+                {field.type !== "select" && field.type !== "radiobutton" && field.type !== "checkboxes" && field.type !== "country" && field.type !== "fileupload" && field.type !== "datepicker" && (
+                  <input
+                    id={field.name}
+                    name={field.name}
+                    type={field.type === "tel" ? "number" : field.type}
+                    placeholder={field.label}
+                    value={formik.values[field.name]}
+                    onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
+                    className={`w-full p-2 border ${formik.touched[field.name] && formik.errors[field.name]
+                      ? "border-red-500"
+                      : "border-gray-300"
+                      } rounded-lg`}
+                  />
                 )}
 
                 {/* Error Message */}
